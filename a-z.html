@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            #game .body {
+                position: relative;
+                text-align: center;
+                top: 140px; 
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 30px;
+                text-align: center;
+            }
+            #title {
+                position: absolute;
+                transform: translate(-50%, 0%);
+                left: 50%;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 50px;
+            }
+            #input {
+                position: absolute;
+                top: 270px;
+                transform: translate(-50%, -50%);
+                text-align: center;
+                left: 50%;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 30px;
+                display: none;
+                width: 100px;
+            }
+            .button {
+                background-color: lightgreen;
+                border: none;
+                color: black;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                cursor: pointer;
+            }
+            #buttons {
+                position: absolute;
+                transform: translate(-50%, 0%);
+                left: 50%;
+                top: 200px;
+                display: block;
+            }
+            #screenLeft {
+                position: absolute;
+                left: 40px;
+                top: 20px;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 30px;
+                text-align: left;
+                display: none;
+            }
+            #screenRight {
+                position: absolute;
+                right: 40px;
+                top: 20px;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 30px;
+                text-align: right;
+                display: none;
+            }
+            #timer2 {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 20px;
+            }
+            .counts {
+                font-size: 20px;
+            }
+            #feedback {
+                position: fixed;
+                transform: translate(-50%, 0%);
+                left: 50%;
+                top: 280px;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 30px;
+                opacity: 0;
+            }
+            #settings {
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%, 0%);
+                width: 500px;
+                border: 1px solid #000; 
+                text-align: center;
+                top: 340px;
+            }
+            label{
+                flex-wrap: wrap;
+                width: auto;
+                display: block; 
+                height: 35px; 
+                line-height: 35px; 
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 20px;
+                padding: 5px;
+            }
+            label input {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 20px;
+                width: 100px;
+            }
+            #settingsLabel {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 25px;
+            }
+            #leave {
+                background-color: red;
+                position: absolute;
+                transform: translate(-50%, 0%);
+                left: 50%;
+                bottom: 20px;
+                display: none;
+            }
+            #statsButton {
+                background-color: orange;
+                position: absolute;
+                left: 20px;
+                bottom: 20px;
+                display: block;
+            }
+            #stats {
+                display: none;
+            }
+            @keyframes wrong {
+                0%  {
+                    transform: translate(-50%, -50%);
+                    border-width: 2px;
+                    border-style: solid;
+                    border-color: gray;
+                    left: 50%;
+                    top: 270px;
+                }
+                25% {
+                    transform: translate(-50%, -50%);
+                    border-width: 4px;
+                    border-style: solid;
+                    border-color: red;
+                    left: calc(50% + 5px);
+                }
+                50% {
+                    transform: translate(-50%, -50%);
+                    border-width: 4px;
+                    border-style: solid;
+                    border-color: red;
+                    left: calc(50% - 5px);
+                }
+                75% {
+                    transform: translate(-50%, -50%);
+                    border-width: 4px;
+                    border-style: solid;
+                    border-color: red;
+                    left: calc(50% + 5px);
+                }
+                100% {
+                    transform: translate(-50%, -50%);
+                    border-width: 2px;
+                    border-style: solid;
+                    border-color: gray;
+                    left: 50%;
+                    top: 270px;
+                }
+            }
+            @keyframes right {
+                0%  {
+                    border-width: 2px;
+                    border-style: solid;
+                    border-color: gray;
+                    left: 50%;
+                    top: calc(270px);
+                }
+                25% {
+                    border-width: 4px;
+                    border-style: solid;
+                    border-color: lightgreen;
+                    top: 273px;
+                }
+                50% {
+                    border-width: 4px;
+                    border-style: solid;
+                    border-color: lightgreen;
+                    top: 267px;
+                }
+                75% {
+                    border-width: 4px;
+                    border-style: solid;
+                    border-color: lightgreen;
+                    top: 273px;
+                }
+                100% {
+                    border-width: 2px;
+                    border-style: solid;
+                    border-color: gray;
+                    left: 50%;
+                    top: 270px;
+                }
+            }
+            @keyframes fade {
+                0% {opacity: 0;}
+                15% {opacity: 1;}
+                85% {opacity: 1;}
+                100% {opacity: 0;}
+            }
+        </style>
+        <title>A-Z memorization</title>
+    </head>
+    <body>
+        <div id = "game">
+            <h1 id = "title">A-Z # memorization tool</h1>
+            <p class = "body" id = "given"></p>
+            <input id = "input" type="text">
+            <p id="feedback"></p>
+            <button class = "button" id = "leave" onclick="end(`left`)">Leave</button>
+            <button class = "button" id = "statsButton" onclick="statsDisplay(`wrong`)">Stats</button>
+            <div id = "buttons">
+                <button class = "button" id = "LetButton" onclick="game(`Num`)">Letter > Number</button>
+                <button class = "button" id = "NumButton" onclick="game(`Let`)">Number > Letter</button>
+            </div>
+            
+            <div id = "screenLeft">
+                <p class = "screenLeft" id = "timer"></p>
+                <p class = "screenLeft" id = "timer2"></p>
+            </div>
+            <div id = "screenRight">
+                <p class = "screenRight" id = "LPMDisplay">LPM: 0.00</p>
+                <p class = "screenRight" id = "accuracy">N/A%</p>
+                <p class = "screenRight counts" id = "rightDisplay">Right: 0</p>
+                <p class = "screenRight counts" id = "wrongDisplay">Wrong: 0</p>
+            </div>
+
+            <div id = "settings">
+                <p id = "settingsLabel">Settings</p>
+                <label for = "timeLimitInput">Time limit (sec):
+                <input type = "number" id = "timeLimitInput" placeholder = "30"></label>
+                <label for = "timeLimitInput">Hardcore: 
+                <input type = "checkbox" id = "hardcoreInput" unchecked></label>
+                <label for = "timeLimitInput">Show Feedback: 
+                <input type = "checkbox" id = "feedbackInput" checked></label>
+                <label for = "countdownInput">Do Countdown: 
+                <input type = "checkbox" id = "countdownInput" checked></label>
+            </div>
+        </div>
+        <div id = "stats"> 
+            <h1 id = "title"></h1>
+            <p class = "body" id = "typeDisplay"></p>
+            <div id="chart"></div>
+        </div>
+    </body>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        function storageEdit(key, inp1, inp2) {
+            output = JSON.parse(localStorage.getItem(key))
+            if (Array.isArray(output)) {
+                console.log("array")
+                output.push(inp1)
+            }   else if (typeof output == "object") {
+                console.log("obj")
+                if(typeof output[inp1] != "number") {
+                    output[inp1] = 0
+                }
+                output[inp1] += inp2
+            }   else {
+                console.log("other")
+                output = inp1
+            }
+            localStorage.setItem(key, JSON.stringify(output))
+        }
+
+        if(localStorage.getItem("right") == null) {
+            localStorage.setItem("right", JSON.stringify({}))
+        }
+        if(localStorage.getItem("wrong") == null) {
+            localStorage.setItem("wrong", JSON.stringify({}))
+        }
+        if(localStorage.getItem("accs") == null) {
+            localStorage.setItem("accs", JSON.stringify([]))
+        }
+        if(localStorage.getItem("LPMs") == null) {
+            localStorage.setItem("LPMs", JSON.stringify([]))
+        }
+        
+        const input = document.getElementById("input")
+        const feedback = document.getElementById("feedback")
+        const given = document.getElementById("given")
+        const timeLimitInput = document.getElementById("timeLimitInput")
+        const hardcoreInput = document.getElementById("hardcoreInput")
+        const feedbackInput = document.getElementById("feedbackInput")
+        const LPMDisplay = document.getElementById("LPMDisplay")
+        const rightDisplay = document.getElementById("rightDisplay")
+        const wrongDisplay = document.getElementById("wrongDisplay")
+        const accuracy = document.getElementById("accuracy")
+        const leaveButton = document.getElementById("leave")
+        const statsButton = document.getElementById("statsButton")
+
+        var key = {}
+        var settings = {}
+        var stats = {}
+
+        var startTime, interval;
+        var type
+        var chartData
+        var chartDataInput = []
+
+        disable()
+
+        for(i=1; i <= 26; i++) {
+            key[eval(i)] = String.fromCharCode(i + 64);
+        }
+
+        for(i=1; i <= 26; i++) {
+            key[String.fromCharCode(i + 64)] = eval(i);
+        }
+
+        async function playAnim(id, anim, ms) {
+            element = document.getElementById(id)
+            element.style.animation = "none"
+            void element.offsetWidth;
+            if(ms == undefined) {
+                ms = "500ms"
+            }
+            element.style.animation = anim + " " + ms
+        }
+
+        function randNum(min, max) {
+            let x = Math.floor((max-min+1) * Math.random() + min); return x 
+        }
+
+        function reIndex(type2) {
+            if(type2 == "Let") {
+                return randNum(1, 26)
+            }
+            if(type2 == "Num") {
+                return String.fromCharCode(randNum(1, 26) + 64)
+            }
+        }
+        
+        function disable() {
+            if (hardcoreInput.checked) {
+                feedbackInput.disabled = true
+            } else {
+                feedbackInput.disabled = false
+            }
+        }
+
+        function sleep(milliseconds) {
+            return new Promise(resolve => setTimeout(resolve, milliseconds));
+        }
+
+        function start(){
+            if(type == "Let") {
+                input.maxLength = 1
+            }
+            if(type == "Num") {
+                input.maxLength = 2
+            }
+            startTime = Date.now();
+            lastInput = Date.now();
+            interval = setInterval(function(){
+                document.getElementById("timer").innerHTML = ((Date.now() - startTime) / 1000).toFixed(2)
+                document.getElementById("timer2").innerHTML = ((Date.now() - lastInput) / 1000).toFixed(2)
+                if(Date.now() - startTime >= settings["endTime"] * 1000) {
+                    end("time")
+                }
+            }, 40);
+        }
+        
+        function sort(dict) {
+            sorted = Object.keys(dict).map(function(key) {
+                return [key, dict[key]]
+            })
+            sorted.sort(function(first, second) {
+                return second[1] - first[1]
+            })
+            return sorted
+        }
+
+        function end(how) {
+            updateValues()
+            clearInterval(interval);
+            input.style.display = "none"
+            leaveButton.innerHTML = "Retry?"
+            leaveButton.style.backgroundColor= "lightgreen"
+            leaveButton.onclick = function() {location.reload()}
+            statsButton.style.display = "block"
+            sorted = sort(stats["wrongList"])
+            if (how == "time") {
+                status = "Ran out of time.<br><br>"
+            } else if (how == "fail") {
+                status = "Failed in hardcore mode.<br><br>"
+            } else if (how == "left") {
+                status = "Left the game.<br><br>"
+            } else {
+                status = ""
+            }
+            if(settings["hardcore"]) {
+                lastOutput = index + " = " + key[index].toString() + "<br><br>"
+            } else {
+                lastOutput = ""
+            }
+            mostFailed = "Most failed:<br>"
+            if(sorted.length != 0 && !settings["hardcore"]){
+                if(sorted.length < 3) {
+                    length = sorted.length
+                } else {
+                    length = 3
+                }
+                for(i=0; i<length; i++) {
+                mostFailed = mostFailed + sorted[i][0] + " - " + sorted[i][1] + "<br>"
+                }
+            } else {
+                mostFailed = ""
+            }
+            given.innerHTML = status + lastOutput + mostFailed
+            if(!isNaN(stats["acc"])) {
+                Object.keys(stats["rightList"]).forEach(key => {
+                    storageEdit("right", key, stats["rightList"][key])
+                })
+                Object.keys(stats["wrongList"]).forEach(key => {
+                    storageEdit("wrong", key, stats["wrongList"][key])
+                })
+                storageEdit("accs", stats["acc"])
+                storageEdit("LPMs", stats["LPM"])
+            }
+       
+        }
+
+        async function game(inputType) {
+            type = inputType
+            settings["endTime"] = parseInt(timeLimitInput.value)
+            settings["hardcore"] = hardcoreInput.checked
+            settings["countdown"] = document.getElementById("countdownInput").checked
+            if(settings["hardcore"]) {
+                settings["feedback"] = false
+                wrongDisplay.style.display = "none"
+                accuracy.style.display = "none"
+            } else {
+                settings["feedback"] = feedbackInput.checked
+            }
+            stats["rightList"] = {}
+            stats["wrongList"] = {}
+            
+            if(isNaN(settings["endTime"]) || settings["endTime"] == undefined) {
+                settings["endTime"] = 30
+            }
+            document.getElementById("buttons").style.display = "none"
+            document.getElementById("settings").style.display = "none"
+            document.getElementById("screenLeft").style.display = "block"
+            document.getElementById("screenRight").style.display = "block"
+            statsButton.style.display = "none"
+
+            if(settings["countdown"]) {
+                for(i = 3; i > 0; i--) {
+                    given.innerHTML = i
+                    await sleep(500)
+                }
+                given.innerHTML = "GO!"
+                await sleep(300)
+            }
+            regen()
+            start() 
+            input.value = ""
+            input.style.display = "block"
+            leaveButton.style.display = "block"
+            input.focus()
+        }
+        
+        function regen() {
+            index = reIndex(type)
+            given.innerHTML = index
+        }
+    
+        function updateValues() {
+            rightCount = 0
+            wrongCount = 0
+            for(i = 0; i < Object.values(stats["rightList"]).length; i++) {
+                rightCount += Object.values(stats["rightList"])[i]
+            }
+            for(i = 0; i < Object.values(stats["wrongList"]).length; i++) {
+                wrongCount += Object.values(stats["wrongList"])[i]
+            }
+            rightDisplay.innerHTML = "Right: " + rightCount
+            wrongDisplay.innerHTML = "Wrong: " + wrongCount
+            stats["LPM"] = ((60000 / (Date.now() - startTime)) * rightCount).toFixed(2)
+            stats["acc"] = ((rightCount / (rightCount + wrongCount)) * 100).toFixed(2)
+            LPMDisplay.innerHTML = "LPM: " + stats["LPM"]
+            accuracy.innerHTML = stats["acc"] + "%"
+        }
+
+        function inputted(){
+
+            if(input.value.toUpperCase() == key[index]) {
+                playAnim("input", "right")
+                if(typeof index == "number") {
+                    index = key[index]
+                }
+                if(isNaN(stats["rightList"][index])){
+                    stats["rightList"][index] = 0
+                }
+                stats["rightList"][index]++
+                lastInput = Date.now()
+            } else {
+                playAnim("input", "wrong")
+                if(typeof index == "number") {
+                    index = key[index]
+                }
+                if(isNaN(stats["wrongList"][index])){
+                    stats["wrongList"][index] = 0
+                }
+                stats["wrongList"][index]++
+                if (settings["feedback"]) {
+                    feedback.innerHTML = index + " = " + key[index] 
+                    playAnim("feedback", "fade", "1500ms")
+                }
+                if (settings["hardcore"]) {
+                    end("fail")
+                    return
+                }
+            }
+            updateValues()
+            input.value = ""
+            regen()
+        }
+
+        hardcoreInput.addEventListener("change", disable)
+
+        input.addEventListener("change", inputted) 
+
+        input.addEventListener("keypress", function(e){
+            if(e.keyCode == 32 || input.maxLength <= input.value.length) {
+                event.returnValue=false;
+                inputted()
+            }
+        })
+
+        async function statsDisplay(chartType) {
+            document.getElementById("game").style.display = "none"
+            document.getElementById("stats").style.display = "block"
+            var options = {'title':`${chartType} statistics`, 'width':1000, 'height':727};
+
+            if(chartType == "right" || chartType == "wrong") {
+                chartDataInput = sort(JSON.parse(localStorage.getItem(chartType)))
+                await chartSetup()
+                var chart = new google.visualization.PieChart(document.getElementById('chart')); 
+                chart.draw(chartData, options);
+            } else if(chartType == "accs")
+                chartDataInput = [] 
+                JSON.parse(localStorage.getItem(chartType)).forEach(element => {
+                    //add each item from accs and LPMs
+
+                })
+                await chartSetup()
+                var chart = new google.visualization.ScatterChart(document.getElementById('chart')); 
+                chart.draw(chartData, options);
+            }
+    
+        async function chartSetup() {
+            await google.charts.load('current', {'packages':['corechart']});
+            await google.charts.setOnLoadCallback(drawChart);
+        }
+
+        function drawChart() {
+            chartData = google.visualization.arrayToDataTable([
+                ['Letter', `Times Inputted`]
+            ].concat(chartDataInput));
+        }
+
+    </script>
+</html>
