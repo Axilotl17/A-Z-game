@@ -116,7 +116,8 @@
                 bottom: 20px;
                 display: none;
             }
-            #statsButton {
+            
+            #statsLeaveButton {
                 background-color: orange;
                 position: absolute;
                 left: 20px;
@@ -126,6 +127,56 @@
             #stats {
                 display: none;
             }
+            #chart {
+                position: absolute;
+                transform: translate(-50%, 0%);
+                left: 50%;
+                width: 1000px;
+            }
+            .dropbtn {
+                font-family: Arial, Helvetica, sans-serif;
+                background-color: orange;
+                position: absolute;
+                left: 20px;
+                bottom: 20px;
+                display: block;
+                padding: 16px;
+                border: none;
+                cursor: pointer;
+                font-size: 30;
+            }
+            .dropbtn:hover, .dropbtn:focus {
+                background-color: #2980B9;
+            }
+
+            .dropdown {
+                display: inline-block;
+            }
+
+            .dropdown-content {
+                left: 20px;
+                bottom: 68px;
+                display: none;
+                position: absolute;
+                background-color: #f1f1f1;
+                min-width: 160px;
+                overflow: auto;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 1;
+            }
+
+            .dropdown-content a {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 20;
+                color: black;
+                padding: 12px 16px;
+                text-decoration: none;
+                display: block;
+            }
+
+            .dropdown a:hover {background-color: #ddd;}
+
+            .show {display: block;}
             @keyframes wrong {
                 0%  {
                     transform: translate(-50%, -50%);
@@ -210,12 +261,20 @@
     </head>
     <body>
         <div id = "game">
-            <h1 id = "title">A-Z # memorization tool</h1>
+            <h1 id = "title">A-Z # memorization game</h1>
             <p class = "body" id = "given"></p>
             <input id = "input" type="text">
             <p id="feedback"></p>
             <button class = "button" id = "leave" onclick="end(`left`)">Leave</button>
-            <button class = "button" id = "statsButton" onclick="statsDisplay(`wrong`)">Stats</button>
+            <div class="dropdown">
+                <button onclick="dropdown()" id = "statsButton" class="dropbtn">Stats</button>
+                <div id="myDropdown" class="dropdown-content">
+                  <a onclick="statsDisplay(`right`)">Right</a>
+                  <a onclick="statsDisplay(`wrong`)">Wrong</a>
+                  <a onclick="statsDisplay(`accs`)">Accuracy</a>
+                  <a onclick="statsDisplay(`LPMs`)">LPM</a>
+                </div>
+              </div>
             <div id = "buttons">
                 <button class = "button" id = "LetButton" onclick="game(`Num`)">Letter > Number</button>
                 <button class = "button" id = "NumButton" onclick="game(`Let`)">Number > Letter</button>
@@ -245,6 +304,7 @@
             </div>
         </div>
         <div id = "stats"> 
+            <button class = "button" id = "statsLeaveButton" onclick="location.reload()">Leave</button>
             <h1 id = "title"></h1>
             <p class = "body" id = "typeDisplay"></p>
             <div id="chart"></div>
@@ -252,6 +312,7 @@
     </body>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
+        chartSetup()
         function storageEdit(key, inp1, inp2) {
             output = JSON.parse(localStorage.getItem(key))
             if (Array.isArray(output)) {
@@ -295,15 +356,17 @@
         const accuracy = document.getElementById("accuracy")
         const leaveButton = document.getElementById("leave")
         const statsButton = document.getElementById("statsButton")
+        const chartID = document.getElementById("chart")
 
         var key = {}
         var settings = {}
         var stats = {}
 
-        var startTime, interval;
+        var startTime, interval
         var type
         var chartData
-        var chartDataInput = []
+        var chartKey = ["x", "y"]
+        
 
         disable()
 
@@ -368,7 +431,7 @@
             }, 40);
         }
         
-        function sort(dict) {
+        function sortDict(dict) {
             sorted = Object.keys(dict).map(function(key) {
                 return [key, dict[key]]
             })
@@ -386,7 +449,7 @@
             leaveButton.style.backgroundColor= "lightgreen"
             leaveButton.onclick = function() {location.reload()}
             statsButton.style.display = "block"
-            sorted = sort(stats["wrongList"])
+            sorted = sortDict(stats["wrongList"])
             if (how == "time") {
                 status = "Ran out of time.<br><br>"
             } else if (how == "fail") {
@@ -397,7 +460,7 @@
                 status = ""
             }
             if(settings["hardcore"]) {
-                lastOutput = index + " = " + key[index].toString() + "<br><br>"
+                lastOutput = solution + " = " + key[solution].toString() + "<br><br>"
             } else {
                 lastOutput = ""
             }
@@ -469,8 +532,8 @@
         }
         
         function regen() {
-            index = reIndex(type)
-            given.innerHTML = index
+            solution = reIndex(type)
+            given.innerHTML = solution
         }
     
         function updateValues() {
@@ -492,27 +555,27 @@
 
         function inputted(){
 
-            if(input.value.toUpperCase() == key[index]) {
+            if(input.value.toUpperCase() == key[solution]) {
                 playAnim("input", "right")
-                if(typeof index == "number") {
-                    index = key[index]
+                if(typeof solution == "number") {
+                    solution = key[solution]
                 }
-                if(isNaN(stats["rightList"][index])){
-                    stats["rightList"][index] = 0
+                if(isNaN(stats["rightList"][solution])){
+                    stats["rightList"][solution] = 0
                 }
-                stats["rightList"][index]++
+                stats["rightList"][solution]++
                 lastInput = Date.now()
             } else {
                 playAnim("input", "wrong")
-                if(typeof index == "number") {
-                    index = key[index]
+                if(typeof solution == "number") {
+                    solution = key[solution]
                 }
-                if(isNaN(stats["wrongList"][index])){
-                    stats["wrongList"][index] = 0
+                if(isNaN(stats["wrongList"][solution])){
+                    stats["wrongList"][solution] = 0
                 }
-                stats["wrongList"][index]++
+                stats["wrongList"][solution]++
                 if (settings["feedback"]) {
-                    feedback.innerHTML = index + " = " + key[index] 
+                    feedback.innerHTML = solution + " = " + key[solution] 
                     playAnim("feedback", "fade", "1500ms")
                 }
                 if (settings["hardcore"]) {
@@ -539,34 +602,67 @@
         async function statsDisplay(chartType) {
             document.getElementById("game").style.display = "none"
             document.getElementById("stats").style.display = "block"
-            var options = {'title':`${chartType} statistics`, 'width':1000, 'height':727};
-
-            if(chartType == "right" || chartType == "wrong") {
-                chartDataInput = sort(JSON.parse(localStorage.getItem(chartType)))
-                await chartSetup()
-                var chart = new google.visualization.PieChart(document.getElementById('chart')); 
-                chart.draw(chartData, options);
-            } else if(chartType == "accs")
-                chartDataInput = [] 
-                JSON.parse(localStorage.getItem(chartType)).forEach(element => {
-                    //add each item from accs and LPMs
-
-                })
-                await chartSetup()
-                var chart = new google.visualization.ScatterChart(document.getElementById('chart')); 
-                chart.draw(chartData, options);
-            }
+            drawChart(chartType)
+        }
     
         async function chartSetup() {
             await google.charts.load('current', {'packages':['corechart']});
             await google.charts.setOnLoadCallback(drawChart);
         }
 
-        function drawChart() {
-            chartData = google.visualization.arrayToDataTable([
-                ['Letter', `Times Inputted`]
-            ].concat(chartDataInput));
-        }
+        function drawChart(chartType) {
+            options = {'title':`${chartType} statistics`, 'width':1000, 'height': 800};
+            dataTable = new google.visualization.DataTable()
+            chart = new google.visualization.PieChart(chartID)
 
+            if(chartType == "right" || chartType == "wrong") {
+                chart = new google.visualization.PieChart(chartID)
+                dataTable.addColumn("string", "Letter")
+                dataTable.addColumn("number", `times ${chartType}`)
+                toSort = []
+                    for (const [key, value] of Object.entries(JSON.parse(localStorage.getItem(chartType)))) {
+                        toSort.push([key, value])
+                    }
+                toSort.sort(function(first, second) {
+                    return second[1] - first[1]
+                })
+                dataTable.addRows(toSort)                
+            } else if(chartType == "accs"){
+                chart = new google.visualization.ScatterChart(chartID)
+                dataTable.addColumn("number", "acc")
+                dataTable.addColumn("number", "LPM")
+
+                JSON.parse(localStorage.getItem(chartType)).forEach((element, index) => {
+                    dataTable.addRow([parseInt(element), parseInt(JSON.parse(localStorage.getItem("LPMs"))[index])])
+                })
+            } else if(chartType == "LPMs") {
+                chart = new google.visualization.LineChart(chartID)
+                dataTable.addColumn("number", "attempt")
+                dataTable.addColumn("number", "LPM")
+                
+                JSON.parse(localStorage.getItem(chartType)).forEach((element, index) => {
+                    dataTable.addRow([index, parseInt(element)])
+                    console.log(index)
+                })
+            }            
+            console.log(dataTable)
+            chart.draw(dataTable, options);
+        }
+        function dropdown() {
+            document.getElementById("myDropdown").classList.toggle("show");
+            }
+
+        window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
     </script>
 </html>
